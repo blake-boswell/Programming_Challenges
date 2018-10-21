@@ -1,0 +1,14 @@
+ea party characterized by int h: hartal param - denotes the avg num of days between 2 successive strikes by the party
+    frequency of hartals : int h
+No hartals on Fri or Sat
+Given: int h for h1...hn
+N days
+Find: num working days lost in N days
+
+loop from 1 to N inclusive as i:
+    if i % 6 != 0 OR i % 7 != 0:                           // Fri / Sat
+        loop from 0 to numPolyParties as j:
+            if i % j == 0:
+                count++
+                break
+    
