@@ -18,6 +18,15 @@ import java.util.*;
 //     }
 // }
 
+class Pair {
+    public int row;
+    public int col;
+    Pair(int row, int col) {
+        this.row = row;
+        this.col = col;
+    }
+}
+
 public class Main {
     public static void main(String args[]) {
         Main primaryArithmetic = new Main();
@@ -76,17 +85,25 @@ public class Main {
                         alreadyVisited[i][j] = maze[i][j];
                     }
                 }
+
+                // printMaze(maze, height, width);
+                // printMaze(alreadyVisited, height, width);
+
+
                 int row = 0;
                 int col = 0;
                 while (row < height && col < width) {
                     // System.out.println("Row: " + row + "\tCol: " + col);
                     // System.out.println("Already visited? " + alreadyVisited[row][col]);
-                    int cycleLength = floodFill(maze, row, col, alreadyVisited, height, width);
-                    // System.out.println("Cycle Length: " + cycleLength);
-                    if (cycleLength != -1 && cycleLength != 0) {
-                        cycles.add(cycleLength/SCALE);
-                        // System.out.println("Cycle with length: " + cycleLength/3);
-                    } 
+                    if (!alreadyVisited[row][col]) {
+                        int cycleLength = floodFillIt(maze, row, col, alreadyVisited, height, width);
+                        // System.out.println("Cycle Length: " + cycleLength);
+                        if (cycleLength != 0) {
+                            cycles.add(cycleLength/SCALE);
+                            // System.out.println("Cycle with length: " + cycleLength/3);
+                        } 
+                    }
+                    
                     // Look for next to floodfill
                     while ((row < height && col < width) && (alreadyVisited[row][col] == true || maze[row][col] == true)) {
                         col++;
@@ -102,6 +119,7 @@ public class Main {
                 } else {
                     System.out.println("There are no cycles.");
                 }
+                System.out.println();
                 
                 
                 // Flood fill
@@ -111,7 +129,7 @@ public class Main {
 
                 
 
-                // printMaze(maze, height, width);
+                
                 mazeCount++;
             } else {
                 run = false;
@@ -124,21 +142,136 @@ public class Main {
         if (row >= height || row < 0 || col >= width || col < 0) {
             return -1;
         }
-        if (maze[row][col] == true) {
-            return 0;
-        }
+        // if (maze[row][col] == true) {
+        //     return 0;
+        // }
         if (alreadyVisited[row][col] == true) {
             return 0;
         }
         alreadyVisited[row][col] = true;
-        int north = floodFill(maze, row - 1, col, alreadyVisited, height, width);
-        int east = floodFill(maze, row, col + 1, alreadyVisited, height, width);
-        int south = floodFill(maze, row + 1, col, alreadyVisited, height, width);
-        int west = floodFill(maze, row, col - 1, alreadyVisited, height, width);
+
+        int north;
+        if (row - 1 >= 0) {
+            north = 0;
+            if (!alreadyVisited[row - 1][col] && !maze[row - 1][col]) {
+                north = floodFill(maze, row - 1, col, alreadyVisited, height, width);
+            }
+        } else {
+            north = -1;
+        }
+
+        int east;
+        if (col + 1 < width) {
+            east = 0;
+            if (!alreadyVisited[row][col + 1] && !maze[row][col + 1]) {
+                east = floodFill(maze, row, col + 1, alreadyVisited, height, width);
+            }
+        } else {
+            east = -1;
+        }
+
+        int south;
+        if (row + 1 < height) {
+            south = 0;
+            if (!alreadyVisited[row + 1][col] && !maze[row + 1][col]) {
+                south = floodFill(maze, row + 1, col, alreadyVisited, height, width);
+            }
+        } else {
+            south = -1;
+        }
+
+        int west;
+        if (col - 1 >= 0) {
+            west = 0;
+            if (!alreadyVisited[row][col - 1] && !maze[row][col - 1]) {
+                west = floodFill(maze, row, col - 1, alreadyVisited, height, width);
+            }
+        } else {
+            west = -1;
+        }
+
         if (north == -1 || east == -1 || south == -1 || west == -1) {
             return -1;
         }
         return (north + east + south + west + 1);
+    }
+
+    /**
+     * @return codes:
+     * 1: not visited yet and in bounds
+     * 0: visited and in bounds
+     * -1: out of bounds
+     * When out of bounds floodFill will be notified that it is not in a cycle
+     */
+    public int valid(boolean maze[][], int row, int col, boolean alreadyVisited[][], int height, int width) {
+        if (row >= 0 && row < height && col >=0 && col < width) {
+            // in bounds
+            if (alreadyVisited[row][col] == false) {
+                // not yet visited and in bounds
+                return 1;
+            }
+            // visited and in bounds
+            return 0;
+        } else {
+            // out of bounds
+            return -1;
+        }
+    }
+
+    public int floodFillIt(boolean maze[][], int row, int col, boolean alreadyVisited[][], int height, int width) {
+        Queue<Pair> q = new LinkedList<>();
+        q.add(new Pair(row, col));
+        alreadyVisited[row][col] = true;
+        int numSquares = 0;
+        boolean isCycle = true;
+        while (q.size() > 0) {
+            Pair pair = q.poll();
+            int newRow = pair.row;
+            int newCol = pair.col;
+            // System.out.println("On (" + newRow + "," + newCol + ")");
+            numSquares++;
+            int northValid = valid(maze, newRow - 1, newCol, alreadyVisited, height, width);
+            if (northValid > 0) {
+                // North
+                q.add(new Pair(newRow -1, newCol));
+                alreadyVisited[newRow - 1][newCol] = true;
+            } else if (northValid == -1) {
+                isCycle = false;
+            }
+
+            int southValid = valid(maze, newRow + 1, newCol, alreadyVisited, height, width);
+            if (southValid > 0) {
+                // South
+                q.add(new Pair(newRow + 1, newCol));
+                alreadyVisited[newRow + 1][newCol] = true;
+            } else if (southValid == -1) {
+                isCycle = false;
+            }
+
+            int eastValid = valid(maze, newRow, newCol + 1, alreadyVisited, height, width);
+            if (eastValid > 0) {
+                // East
+                q.add(new Pair(newRow, newCol + 1));
+                alreadyVisited[newRow][newCol + 1] = true;
+            } else if (eastValid == -1) {
+                isCycle = false;
+            }
+
+            int westValid = valid(maze, newRow, newCol - 1, alreadyVisited, height, width);
+            if (westValid > 0) {
+                // West
+                q.add(new Pair(newRow, newCol - 1));
+                alreadyVisited[newRow][newCol - 1] = true;
+            } else if (westValid == -1) {
+                isCycle = false;
+            }
+        }
+        if (isCycle) {
+            return numSquares;
+        } else {
+            return 0;
+        }
+
     }
 
     public static void printMaze(boolean maze[][], int height, int width) {
