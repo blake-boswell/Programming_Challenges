@@ -67,3 +67,33 @@
 		- Pick another ( e -> d, total cost += 8, total cost = 20)
 		- Pick another (d -> b, total cost += 7, total cost = 27)
 		- End (our tree connects the same number of vertices as the original spanning tree has) n - 1 edges (assuming n vertices)
+
+## Network Flows and Bipartite Matching
+- Weight of an edge (i,j) measures the capacity of the pipe
+- Network flow problem asks for the max amount of flow which can be sent from vertex s to vertex t, while respecting the max capacity of each pipe
+
+### Bipartite Matching
+- A type of network flow problem
+- A matching in a graph is a subset of edges such that no two edges share a vertex
+- A matching pairs off certain vertices such that every vertex is in at most one such pair
+- Graph G is bipartite or 2 colorable if the vertices can be divided into 2 sets (L and R) such that all edges in G have one vertex in L and one vertex in R
+- EXAMPLE: certain vertices represent jobs to be done, others represent people who can potentially do them. The existence of an edge (j,p) means that job j can potentially be done by person p
+
+### Ford-Fulkerson augmenting path algorithm
+- For each edge, keep track of both the amount of flow going through the edge && remaining residual capacity
+- Look for any path from source (connected to every vertex in L by a weight 1) to sink (connected to every vertex in R by a weight 1) that increases total flow
+- Use it to augment the total flow
+- Terminate on the optimal flow when no augmenting path exists
+
+- Computes maximum flow from source to sink
+    - Max amount of anything you can move from a starting node to an ending node
+- Do this by finding augmenting paths from source to sink
+    - Augmenting Path:
+    - Edges are non-full && forward
+    - OR Non-empty and backward
+- While we can find an augmenting path
+1. Find augmenting path
+2. Compute the bottleneck capactity
+    - Edge in the path with the smallest capacity
+3. Augment each edge and the total flow
+
