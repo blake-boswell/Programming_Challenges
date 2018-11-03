@@ -18,6 +18,21 @@ struct Table {
     }
 };
 
+void insertionSort(Table tables[], int numTables) {
+    for (int i = 1; i < numTables; i++) {
+        Table key = tables[i];
+        for (int j = i - 1; j >= 0; j--) {
+            if (tables[i].capacity > tables[j].capacity) {
+                // swap
+                Table temp = tables[i];
+                tables[i] = tables[j];
+                tables[j] = temp;
+                i--;
+            }
+        }
+    }
+}
+
 int main(int argc, char** argv) {
     int numTeams, numTables;
     bool run = true;
@@ -40,56 +55,56 @@ int main(int argc, char** argv) {
         // cout << maxNum << endl;
         int teamToTable[numTeams][numTables];
         bool valid = true;
+        for (int i = 0; i < numTables; i++) {
+            int capacity;
+            cin >> capacity;
+            tables[i].capacity = capacity;
+            tables[i].id = i + 1;
+            // cout << "Table " << i << " cap set to " << tables[i].capacity << endl;
+        }
+
         if (maxNum > numTables) {
             valid = false;
             // cout << "Cause maths\n";
-        } else {
-            for (int i = 0; i < numTables; i++) {
-                int capacity;
-                cin >> capacity;
-                tables[i].capacity = capacity;
-                tables[i].id = i + 1;
-                // cout << "Table " << i << " cap set to " << tables[i].capacity << endl;
-            }
+        }
 
-            for (int i = 0; i < numTables; i++) {
-                cout << "[" << tables[i].id << "]: " << tables[i].capacity << endl;
-            }
-            cout << "\n\n";
+        for (int i = 0; i < numTables; i++) {
+            cout << "[" << tables[i].id << "]: " << tables[i].capacity << endl;
+        }
+        cout << "\n\n";
 
-            // Insertion sort
-            for (int i = 1; i < numTables; i++) {
-                Table key = tables[i];
-                for (int j = i - 1; j >= 0; j--) {
-                    if (tables[i].capacity > tables[j].capacity) {
-                        // swap
-                        Table temp = tables[i];
-                        tables[i] = tables[j];
-                        tables[j] = temp;
-                        i--;
-                    }
+        // Insertion sort
+        for (int i = 1; i < numTables; i++) {
+            Table key = tables[i];
+            for (int j = i - 1; j >= 0; j--) {
+                if (tables[i].capacity > tables[j].capacity) {
+                    // swap
+                    Table temp = tables[i];
+                    tables[i] = tables[j];
+                    tables[j] = temp;
+                    i--;
                 }
             }
+        }
 
-            for (int i = 0; i < numTables; i++) {
-                cout << "[" << tables[i].id << "]: " << tables[i].capacity << endl;
-            }
+        for (int i = 0; i < numTables; i++) {
+            cout << "[" << tables[i].id << "]: " << tables[i].capacity << endl;
+        }
 
-            // for each member of each team, assign them a seat at a diff table
-            for (int i = 0; i < numTeams && valid; i++) {
-                // cout << "Team: " << i+1 << " of " << numTeams << endl;
-                // cout << "Member count: " << numMembers[i] << endl;
-                for (int j = 0; j < numMembers[i]; j++) {
-                    cout << "Table " << tables[j].id << ". Cap: " << tables[j].capacity << endl;
-                    // Shouldn't cause err b/c maxNum <= numTables
-                    teamToTable[i][j] = tables[j].id;
-                    if (--tables[j].capacity < 0) {
-                        valid = false;
-                    }
+        // for each member of each team, assign them a seat at a diff table
+        for (int i = 0; i < numTeams && valid; i++) {
+            // cout << "Team: " << i+1 << " of " << numTeams << endl;
+            // cout << "Member count: " << numMembers[i] << endl;
+            for (int j = 0; j < numMembers[i]; j++) {
+                cout << "Table " << tables[j].id << ". Cap: " << tables[j].capacity << endl;
+                // Shouldn't cause err b/c maxNum <= numTables
+                teamToTable[i][j] = tables[j].id;
+                insertionSort(tables, numTables);
+                if (--tables[j].capacity < 0) {
+                    valid = false;
                 }
-                cout << endl;
             }
-
+            cout << endl;
         }
 
         if (valid) {
